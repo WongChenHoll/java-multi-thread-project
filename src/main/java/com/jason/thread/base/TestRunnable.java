@@ -16,7 +16,7 @@ public class TestRunnable {
 
     public static void main(String[] args) {
 
-        // 使用Runnable接口创建一个线程
+        // 使用Runnable接口创建一个任务，并通过Thread创建一个线程执行这个任务
         Runnable r0 = new Runnable() {
             @Override
             public void run() {
@@ -25,21 +25,21 @@ public class TestRunnable {
         };
         new Thread(r0).start();
 
-        // 使用Runnable接口创建一个线程，使用lambda表达式
+        // 使用Runnable接口创建一个任务，并通过Thread创建一个线程执行这个任务，使用lambda表达式
         Runnable r1 = () -> logger.info("r1 当前线程名：{}", Thread.currentThread().getName());
         new Thread(r1).start();
 
-        // 使用Runnable接口创建一个线程，线程名：Runnable线程6
+        // 使用Runnable接口创建一个任务，并通过Thread创建一个线程执行这个任务，线程名：Runnable线程6
         Runnable r2 = () -> logger.info("r2 当前线程名：{}", Thread.currentThread().getName());
         Thread t3 = new Thread(r2);
         t3.setName("Runnable线程6");
         t3.start();
 
-        // 使用Runnable接口创建一个线程，线程名：Runnable线程7
+        // 使用Runnable接口创建一个任务，并通过Thread创建一个线程执行这个任务，线程名：Runnable线程7
         Runnable r3 = () -> logger.info("r3 当前线程名：{}", Thread.currentThread().getName());
         new Thread(r3, "Runnable线程7").start();
 
-        // 使用Runnable接口创建一个线程，线程名：Runnable线程8
+        // 使用Runnable接口创建一个任务，并通过Thread创建一个线程执行这个任务，线程名：Runnable线程8
         new Thread(() -> logger.info("r4 当前线程名：{}", Thread.currentThread().getName()), "Runnable线程8").start();
 
     }
