@@ -37,5 +37,24 @@ public class TestThread {
         };
         t2.start();
 
+        MyThread myThread = new MyThread(10);
+        myThread.start();
+
+    }
+}
+
+/**
+ * 创建一个多线程任务，继承Thread类
+ */
+class MyThread extends Thread {
+    private int num;
+
+    public MyThread(int num) {
+        this.num = num;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("线程编号：" + num);
     }
 }

@@ -42,5 +42,23 @@ public class TestRunnable {
         // 使用Runnable接口创建一个任务，并通过Thread创建一个线程执行这个任务，线程名：Runnable线程8
         new Thread(() -> logger.info("r4 当前线程名：{}", Thread.currentThread().getName()), "Runnable线程8").start();
 
+
+        MyRunnable myRunnable = new MyRunnable(11);
+        Thread thread = new Thread(myRunnable);
+        thread.start();
+    }
+}
+
+class MyRunnable implements Runnable {
+
+    private int num;
+
+    public MyRunnable(int num) {
+        this.num = num;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("线程编号：" + num);
     }
 }
