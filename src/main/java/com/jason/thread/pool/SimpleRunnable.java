@@ -3,6 +3,9 @@ package com.jason.thread.pool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * 任务类，包括任务编号。
  *
@@ -21,6 +24,6 @@ public class SimpleRunnable implements Runnable {
 
     @Override
     public void run() {
-        logger.info("[{}]-线程执行了第 {} 个任务", Thread.currentThread().getName(), taskNum);
+        logger.info("[{}]-线程执行了第 {} 个任务，执行时间：{}", Thread.currentThread().getName(), taskNum, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
     }
 }
