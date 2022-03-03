@@ -6,15 +6,18 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 测试 interrupt() 方法的使用.
+ * 测试 interrupt() 方法的使用，该方法用于中断正在运行的线程。
  * <pre>
  *     通过本类中的4个测试方法得知：
+ *     1.如果该线程的run()方法中使用了Thread.sleep()时，
+ *      那么在执行线程的过程中直接使用interrupt()中断线程时，会报异常：java.lang.InterruptedException: sleep interrupted。
+ *      且线程的状态是：RUNNABLE。
  *
  *     1.当我们创建的线程或者任务中的run()中使用了Thread.sleep()方法时。
  *      在执行线程未完成时，无论是使用Thread.sleep()还是TimeUnit.SECONDS.sleep()使线程睡眠，
  *      然后再使用interrupt()中断睡眠时，线程会报异常：java.lang.InterruptedException: sleep interrupted。
  *
- *     2.当我们创建的线程或者任务中的run()中不使用了Thread.sleep()方法时，而是通过while(){}使任务执行一段时间，
+ *     2.当我们创建的线程或者任务中的run()中不使用Thread.sleep()方法时，而是通过while(){}使任务执行一段时间，
  *      在执行线程未完成时，无论是使用Thread.sleep()还是TimeUnit.SECONDS.sleep()使线程睡眠，
  *      然后再使用interrupt()中断睡眠时,线程的状态始终是：RUNNABLE，且不会出异常。
  * </pre>
@@ -39,12 +42,13 @@ public class TestInterrupt {
      * 被测试的线程的 run() 方法中使用了Thread.sleep(5000) 睡眠5秒。
      * <pre>
      * 在线程执行过程中时：<br/>
-     *   1.当使用Thread.sleep(2000) 或者TimeUnit.SECONDS.sleep(2)时，
-     *          此时线程还未执行完成，线程状态是：TIMED_WAITING，在使用 interrupt() 中断线程睡眠时，
-     *          会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   2.当使用Thread.sleep(6000) 或者TimeUnit.SECONDS.sleep(6) 时，
-     *          此时线程已经执行完成，线程状态是：TERMINATED，在使用 interrupt() 中断线程睡眠时，
-     *          因为线程已经执行完了，所以不会有影响。
+     *   1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
+     *   2.当使用Thread.sleep(2000) 或者TimeUnit.SECONDS.sleep(2)时，
+     *          此时线程还未执行完成，线程状态是：TIMED_WAITING，
+     *          在使用 interrupt() 中断线程睡眠时，会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
+     *   3.当使用Thread.sleep(6000) 或者TimeUnit.SECONDS.sleep(6) 时，
+     *          此时线程已经执行完成，线程状态是：TERMINATED，
+     *          在使用 interrupt() 中断线程睡眠时，因为线程已经执行完了，所以不会有影响。
      * </pre>
      *
      * @throws InterruptedException 打断睡眠的线程时 异常。
@@ -57,24 +61,25 @@ public class TestInterrupt {
         t1.start();
         logger.info("执行 start()方法之后：{}", t1.getState());
 
-//        Thread.sleep(6000);
+//        Thread.sleep(2000);
 //        logger.info("执行 Thread.sleep()方法之后：{}", t1.getState());
 
-        TimeUnit.SECONDS.sleep(6);
-        logger.info("执行 TimeUnit.sleep()方法之后：{}", t1.getState());
+//        TimeUnit.SECONDS.sleep(6);
+//        logger.info("执行 TimeUnit.sleep()方法之后：{}", t1.getState());
 
         t1.interrupt();
         logger.info("执行 interrupt()方法之后：{}", t1.getState());
     }
 
     /**
-     * 被测试的线程的 run() 方法中不使用了Thread.sleep() 睡眠，而是while(){}循环5秒。
+     * 被测试的线程的 run() 方法中不使用Thread.sleep() 睡眠，而是while(){}循环5秒。
      * <pre>
      * 在线程执行过程中时：<br/>
-     *   1.当使用Thread.sleep(2000)或者TimeUnit.SECONDS.sleep(2)时，
+     *  1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。不会出现异常。
+     *  2.当使用Thread.sleep(2000)或者TimeUnit.SECONDS.sleep(2)时，
      *          此时线程还未执行完成，线程状态是：RUNNABLE，在使用 interrupt() 中断线程睡眠时，线程状态还是：RUNNABLE。
      *          不会报异常。<br/>
-     *   2.当使用Thread.sleep(6000)或者TimeUnit.SECONDS.sleep(6)时，
+     *  3.当使用Thread.sleep(6000)或者TimeUnit.SECONDS.sleep(6)时，
      *          此时线程已经执行完成，线程状态是：TERMINATED，在使用 interrupt() 中断线程睡眠时，线程状态还是：TERMINATED。
      *          因为线程已经执行完了，所以不会有影响。
      * </pre>
@@ -89,8 +94,8 @@ public class TestInterrupt {
         threadState.start();
         logger.info("执行 start()方法之后：{}", threadState.getState());
 
-        Thread.sleep(6000);
-        logger.info("执行 Thread.sleep()方法之后：{}", threadState.getState());
+//        Thread.sleep(2000);
+//        logger.info("执行 Thread.sleep()方法之后：{}", threadState.getState());
 
 //        TimeUnit.SECONDS.sleep(6);
 //        logger.info("执行 TimeUnit.sleep()方法之后：{}", threadState.getState());
@@ -103,10 +108,11 @@ public class TestInterrupt {
      * 使用一个实现了Runnable接口的类创建一个任务，再通过new Thread(runnable)创建一个线程。该任务中的run()方法中使用Thread.sleep()睡眠5秒。
      * <pre>
      * 在线程执行过程中时：<br/>
-     *   1.当使用Thread.sleep(2000)或者TimeUnit.SECONDS.sleep(2)时，
+     *   1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
+     *   2.当使用Thread.sleep(2000)或者TimeUnit.SECONDS.sleep(2)时，
      *          此时线程还未执行完成，线程状态是：TIMED_WAITING，在使用 interrupt() 中断线程睡眠时，线程状态还是：TIMED_WAITING。
      *          同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   2.当使用Thread.sleep(6000)或者TimeUnit.SECONDS.sleep(6)时，
+     *   3.当使用Thread.sleep(6000)或者TimeUnit.SECONDS.sleep(6)时，
      *          此时线程已经执行完成，线程状态是：TERMINATED，在使用 interrupt() 中断线程睡眠时，线程状态还是：TERMINATED。
      *          因为线程已经执行完了，所以不会有影响。
      * </pre>
@@ -123,8 +129,8 @@ public class TestInterrupt {
         logger.info("执行 start()方法之后：{}", thread.getState());
 
 //        Thread.sleep(2000);
-        Thread.sleep(6000);
-        logger.info("执行 Thread.sleep()方法之后：{}", thread.getState());
+//        Thread.sleep(6000);
+//        logger.info("执行 Thread.sleep()方法之后：{}", thread.getState());
 
 //        TimeUnit.SECONDS.sleep(2);
 //        TimeUnit.SECONDS.sleep(6);
