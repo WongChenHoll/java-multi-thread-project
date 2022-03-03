@@ -9,29 +9,27 @@ import org.slf4j.LoggerFactory;
  * @author WongChenHoll
  * @date 2022-2-21 17:22
  **/
-public class ComplexThreadState extends Thread {
+public class ComplexThread extends Thread {
     private String threadName; //线程名
-    private int threadNum; // 线程编号
 
 
-    public ComplexThreadState() {
+    public ComplexThread() {
         super("默认线程名");
     }
 
-    public ComplexThreadState(String threadName) {
+    public ComplexThread(String threadName) {
         super(threadName);
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(ComplexThreadState.class);
+    private static final Logger logger = LoggerFactory.getLogger(ComplexThread.class);
 
     @Override
     public void run() {
         logger.info("开始执行run()方法时的线程状态：{}", Thread.currentThread().getState());
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            logger.error("任务执行异常：", e);
+        long s = System.currentTimeMillis();
+        while (System.currentTimeMillis() - s < 5000) {
+            // do something
         }
-        logger.info("========== 任务执行完成 ===========");
+        logger.info("========== ComplexThread 任务执行完成 ===========");
     }
 }

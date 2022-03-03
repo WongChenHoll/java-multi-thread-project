@@ -27,7 +27,7 @@ public class TestThreadState {
      * @throws InterruptedException 异常
      */
     private static void test01() throws InterruptedException {
-        SimpleThreadState ts = new SimpleThreadState();
+        SimpleThread ts = new SimpleThread();
         logger.info("执行start()方法之前：线程 [{}] 的状态：{}", ts.getName(), ts.getState()); // NEW
         ts.start();
         // 需要注意的是此时线程并没有执行完成，依次处于RUNNABLE状态
@@ -44,7 +44,7 @@ public class TestThreadState {
      * @throws InterruptedException 异常
      */
     private static void test02() throws InterruptedException {
-        ComplexThreadState cs = new ComplexThreadState();
+        SleepThread cs = new SleepThread();
         logger.info("执行start()方法之前：线程 [{}] 的状态：{}", cs.getName(), cs.getState()); // NEW
         cs.start();
         // 需要注意的是此时线程并没有执行完成，依次处于RUNNABLE状态
@@ -53,6 +53,7 @@ public class TestThreadState {
         // 等待1秒后，该线程的任务还没有完成，而这时我们调用了Thread.sleep()方法，所以会使线程进入TIMED_WAITING状态。
         Thread.sleep(1000);
         logger.info("执行sleep()方法之后：线程 [{}] 的状态：{}", cs.getName(), cs.getState()); // TIMED_WAITING
+
         // 又等待了3秒，此时线程已经执行完成（该线程总共耗时大约3秒），所以此时线程的状态是：TERMINATED
         Thread.sleep(3000);
         logger.info("执行sleep()方法之后：线程 [{}] 的状态：{}", cs.getName(), cs.getState()); // TERMINATED
