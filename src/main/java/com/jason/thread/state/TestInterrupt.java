@@ -6,7 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 测试 interrupt() 方法的使用，该方法用于中断正在运行的线程。
+ * 测试 interrupt() 方法的使用，该方法用于中断线程，但线程并不会停止运行，只是给线程打上中断标志。
+ * 主要测试线程在使用Thread.sleep()或者TimeUtil.sleep()时再使用interrupt()，线程的变化。（玛德，没啥作用，纯粹是浪费时间！）
  * <pre>
  *     通过本类中的4个测试方法得知：
  *     1.如果该线程的run()方法中使用了Thread.sleep()时，
@@ -31,12 +32,45 @@ public class TestInterrupt {
 
     public static void main(String[] args) throws InterruptedException {
 
+        testTheThreadUseTimeUtilSleep();
 //        testTheThreadHasSleepMethod();
 //        testTheThreadWithoutSleepMethod();
-        testTheRunnableHasSleepMethod();
+//        testTheRunnableHasSleepMethod();
 //        testTheRunnableWithoutSleepMethod();
     }
 
+    /**
+     * 被测试的线程的 run() 方法中使用了Thread.sleep(5000) 睡眠5秒。
+     * <pre>
+     * 在线程执行过程中时：<br/>
+     *   1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
+     *   2.当使用Thread.sleep(2000) 或者TimeUnit.SECONDS.sleep(2)时，
+     *          此时线程还未执行完成，线程状态是：TIMED_WAITING，
+     *          在使用 interrupt() 中断线程睡眠时，会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
+     *   3.当使用Thread.sleep(6000) 或者TimeUnit.SECONDS.sleep(6) 时，
+     *          此时线程已经执行完成，线程状态是：TERMINATED，
+     *          在使用 interrupt() 中断线程睡眠时，因为线程已经执行完了，所以不会有影响。
+     * </pre>
+     *
+     * @throws InterruptedException 打断睡眠的线程时 异常。
+     */
+    private static void testTheThreadUseTimeUtilSleep() throws InterruptedException {
+        logger.info("执行方法：testTheThreadUseTimeUtilSleep()");
+
+        TimeUtilSleepThread t1 = new TimeUtilSleepThread();
+        logger.info("刚创建时线程状态：{}", t1.getState());
+        t1.start();
+        logger.info("执行 start()方法之后：{}", t1.getState());
+
+        Thread.sleep(2000);
+        logger.info("执行 Thread.sleep()方法之后：{}", t1.getState());
+
+//        TimeUnit.SECONDS.sleep(6);
+//        logger.info("执行 TimeUnit.sleep()方法之后：{}", t1.getState());
+
+        t1.interrupt();
+        logger.info("执行 interrupt()方法之后：{}", t1.getState());
+    }
 
     /**
      * 被测试的线程的 run() 方法中使用了Thread.sleep(5000) 睡眠5秒。
