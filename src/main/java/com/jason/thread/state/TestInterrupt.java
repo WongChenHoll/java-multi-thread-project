@@ -1,212 +1,115 @@
 package com.jason.thread.state;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
-
 /**
- * 测试 interrupt() 方法的使用，该方法用于中断线程，但线程并不会停止运行，只是给线程打上中断标志。
- * 主要测试线程在使用Thread.sleep()或者TimeUtil.sleep()时再使用interrupt()，线程的变化。（玛德，没啥作用，纯粹是浪费时间！）
+ * 测试如下方法：
  * <pre>
- *     通过本类中的4个测试方法得知：
- *     1.如果该线程的run()方法中使用了Thread.sleep()时，
- *      那么在执行线程的过程中直接使用interrupt()中断线程时，会报异常：java.lang.InterruptedException: sleep interrupted。
- *      且线程的状态是：RUNNABLE。
- *
- *     1.当我们创建的线程或者任务中的run()中使用了Thread.sleep()方法时。
- *      在执行线程未完成时，无论是使用Thread.sleep()还是TimeUnit.SECONDS.sleep()使线程睡眠，
- *      然后再使用interrupt()中断睡眠时，线程会报异常：java.lang.InterruptedException: sleep interrupted。
- *
- *     2.当我们创建的线程或者任务中的run()中不使用Thread.sleep()方法时，而是通过while(){}使任务执行一段时间，
- *      在执行线程未完成时，无论是使用Thread.sleep()还是TimeUnit.SECONDS.sleep()使线程睡眠，
- *      然后再使用interrupt()中断睡眠时,线程的状态始终是：RUNNABLE，且不会出异常。
+ *     1.interrupt().Thread类中的成员方法，public void interrupt()；给线程打上中断标识。
+ *          a.如果线程进入阻塞状态（例如sleep,wait,join等），则会抛出异常：java.lang.InterruptedException: sleep interrupted。
+ *          b.如果线程处于正常活动状态，那么该线程的中断标识为true，不会影响线程的正常运行。
+ *     2.interrupted().Thread类中的静态方法，public static boolean interrupted()；判断当前线程的中断状态。
+ *          注意的是第二次调用此方法时会清除中断状态。当调用interrupt()方法后，也就是第一次调用interrupted()会返回true，第二次调用就会返回false。
+ *     3.isInterrupted().Thread类中的成员方法，public boolean isInterrupted() ；判断当前线程的中断状态。不会清除中断状态。
+ *     4.isInterrupted(boolean ClearInterrupted).
  * </pre>
  *
  * @author WongChenHoll
- * @date 2022-3-1 17:06
+ * @date 2022-3-4 15:49
  **/
 public class TestInterrupt {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestInterrupt.class);
-
     public static void main(String[] args) throws InterruptedException {
-
-        testTheThreadUseTimeUtilSleep();
-//        testTheThreadHasSleepMethod();
-//        testTheThreadWithoutSleepMethod();
-//        testTheRunnableHasSleepMethod();
-//        testTheRunnableWithoutSleepMethod();
+//        testIsInterruptedWithoutSleep();
+//        testIsInterruptedAfterSleep();
+        testInterrupted();
+//        testIsInterruptedWithSleep();
     }
 
     /**
-     * 被测试的线程的 run() 方法中使用了Thread.sleep(5000) 睡眠5秒。
-     * <pre>
-     * 在线程执行过程中时：<br/>
-     *   1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   2.当使用Thread.sleep(2000) 或者TimeUnit.SECONDS.sleep(2)时，
-     *          此时线程还未执行完成，线程状态是：TIMED_WAITING，
-     *          在使用 interrupt() 中断线程睡眠时，会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   3.当使用Thread.sleep(6000) 或者TimeUnit.SECONDS.sleep(6) 时，
-     *          此时线程已经执行完成，线程状态是：TERMINATED，
-     *          在使用 interrupt() 中断线程睡眠时，因为线程已经执行完了，所以不会有影响。
-     * </pre>
-     *
-     * @throws InterruptedException 打断睡眠的线程时 异常。
+     * 测试一个线程在执行过程中的中断状态。
+     * 在调用interrupt()方法之前，使用 isInterrupted()查看该线程的中断状态是false，
+     * 调用interrupt()之后使用 isInterrupted()查看该线程的中断状态一直是true。
      */
-    private static void testTheThreadUseTimeUtilSleep() throws InterruptedException {
-        logger.info("执行方法：testTheThreadUseTimeUtilSleep()");
-
-        TimeUtilSleepThread t1 = new TimeUtilSleepThread();
-        logger.info("刚创建时线程状态：{}", t1.getState());
-        t1.start();
-        logger.info("执行 start()方法之后：{}", t1.getState());
-
-        Thread.sleep(2000);
-        logger.info("执行 Thread.sleep()方法之后：{}", t1.getState());
-
-//        TimeUnit.SECONDS.sleep(6);
-//        logger.info("执行 TimeUnit.sleep()方法之后：{}", t1.getState());
-
-        t1.interrupt();
-        logger.info("执行 interrupt()方法之后：{}", t1.getState());
+    private static void testIsInterruptedWithoutSleep() {
+        Thread ss = new Thread(() -> {
+            long s = System.currentTimeMillis();
+            while (System.currentTimeMillis() - s < 3000) {
+            }
+        });
+        ss.start();
+        System.out.println("ss 调用interrupt()之前，中断状态：" + ss.isInterrupted() + "，存活：" + ss.isAlive() + "，线程状态：" + ss.getState());
+        ss.interrupt();
+        System.out.println("ss 调用interrupt()之后，测试调用isInterrupted()方法");
+        System.out.println("ss 第一次中断状态：" + ss.isInterrupted() + "，存活：" + ss.isAlive() + "，线程状态：" + ss.getState());
+        System.out.println("ss 第二次中断状态：" + ss.isInterrupted() + "，存活：" + ss.isAlive() + "，线程状态：" + ss.getState());
+        System.out.println("ss 第三次中断状态：" + ss.isInterrupted() + "，存活：" + ss.isAlive() + "，线程状态：" + ss.getState());
     }
 
     /**
-     * 被测试的线程的 run() 方法中使用了Thread.sleep(5000) 睡眠5秒。
-     * <pre>
-     * 在线程执行过程中时：<br/>
-     *   1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   2.当使用Thread.sleep(2000) 或者TimeUnit.SECONDS.sleep(2)时，
-     *          此时线程还未执行完成，线程状态是：TIMED_WAITING，
-     *          在使用 interrupt() 中断线程睡眠时，会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   3.当使用Thread.sleep(6000) 或者TimeUnit.SECONDS.sleep(6) 时，
-     *          此时线程已经执行完成，线程状态是：TERMINATED，
-     *          在使用 interrupt() 中断线程睡眠时，因为线程已经执行完了，所以不会有影响。
-     * </pre>
-     *
-     * @throws InterruptedException 打断睡眠的线程时 异常。
+     * 测试一个线程在执行过程中的中断状态。
+     * 同方法{@link TestInterrupt#testIsInterruptedWithoutSleep()}结果一样。
+     * 虽然在本方法中使用了Thread.sleep(1000)方法使线程睡眠了1秒，但是该方法针对的是当前主线程，也就是main线程，所以对bb线程没影响。
+     * 但是main的中断效果和主线程和方法{@link TestInterrupt#testIsInterruptedWithoutSleep()}中的ss线程一样。
      */
-    private static void testTheThreadHasSleepMethod() throws InterruptedException {
-        logger.info("执行方法：testTheThreadHasSleepMethod()");
+    private static void testIsInterruptedAfterSleep() throws InterruptedException {
+        Thread bb = new Thread(() -> {
+            long s = System.currentTimeMillis();
+            while (System.currentTimeMillis() - s < 3000) {
+            }
+        });
+        bb.start();
+        System.out.println("bb 调用interrupt()之前，中断状态：" + bb.isInterrupted() + "，存活：" + bb.isAlive() + "，线程状态：" + bb.getState());
+        Thread.sleep(1000);
+        bb.interrupt();
+        System.out.println("bb 调用interrupt()之后，测试调用isInterrupted()方法");
+        System.out.println("bb 第一次中断状态：" + bb.isInterrupted() + "，存活：" + bb.isAlive() + "，线程状态：" + bb.getState());
+        System.out.println("bb 第二次中断状态：" + bb.isInterrupted() + "，存活：" + bb.isAlive() + "，线程状态：" + bb.getState());
+        System.out.println("bb 第三次中断状态：" + bb.isInterrupted() + "，存活：" + bb.isAlive() + "，线程状态：" + bb.getState());
 
-        SleepThread t1 = new SleepThread();
-        logger.info("刚创建时线程状态：{}", t1.getState());
-        t1.start();
-        logger.info("执行 start()方法之后：{}", t1.getState());
-
-//        Thread.sleep(2000);
-//        logger.info("执行 Thread.sleep()方法之后：{}", t1.getState());
-
-//        TimeUnit.SECONDS.sleep(6);
-//        logger.info("执行 TimeUnit.sleep()方法之后：{}", t1.getState());
-
-        t1.interrupt();
-        logger.info("执行 interrupt()方法之后：{}", t1.getState());
+        Thread currentThread = Thread.currentThread(); // 当前主线程
+        System.out.println("当前主线程：" + currentThread.getName());
+        System.out.println("测试的主线程中断状态：" + currentThread.isInterrupted() + "，存活：" + currentThread.isAlive() + "，线程状态：" + currentThread.getState());
+        currentThread.interrupt();
+//        Thread.sleep(2000); // 加上这段代码，让主线程睡眠2秒，也就是阻塞了，此时会报异常。注意：这里的主线程是同步执行的。
+        System.out.println("主线程 第一次中断状态：" + currentThread.isInterrupted() + "，存活：" + currentThread.isAlive() + "，线程状态：" + currentThread.getState());
+        System.out.println("主线程 第二次中断状态：" + currentThread.isInterrupted() + "，存活：" + currentThread.isAlive() + "，线程状态：" + currentThread.getState());
+        System.out.println("主线程 第三次中断状态：" + currentThread.isInterrupted() + "，存活：" + currentThread.isAlive() + "，线程状态：" + currentThread.getState());
     }
 
     /**
-     * 被测试的线程的 run() 方法中不使用Thread.sleep() 睡眠，而是while(){}循环5秒。
-     * <pre>
-     * 在线程执行过程中时：<br/>
-     *  1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。不会出现异常。
-     *  2.当使用Thread.sleep(2000)或者TimeUnit.SECONDS.sleep(2)时，
-     *          此时线程还未执行完成，线程状态是：RUNNABLE，在使用 interrupt() 中断线程睡眠时，线程状态还是：RUNNABLE。
-     *          不会报异常。<br/>
-     *  3.当使用Thread.sleep(6000)或者TimeUnit.SECONDS.sleep(6)时，
-     *          此时线程已经执行完成，线程状态是：TERMINATED，在使用 interrupt() 中断线程睡眠时，线程状态还是：TERMINATED。
-     *          因为线程已经执行完了，所以不会有影响。
-     * </pre>
-     *
-     * @throws InterruptedException 打断睡眠的线程时 异常。
+     * 测试主线程的中断状态。
+     * 在主线程调用interrupt()方法给线程打上中断标识之前，使用 Thread.interrupted()查看该线程的中断状态是false，
+     * 调用interrupt()之后，使用 Thread.interrupted()查看该线程的中断状态第一次是true，后面再查看就是false。
      */
-    private static void testTheThreadWithoutSleepMethod() throws InterruptedException {
-        logger.info("执行方法：testTheThreadWithoutSleepMethod()");
-
-        ComplexThread threadState = new ComplexThread();
-        logger.info("刚创建时线程状态：{}", threadState.getState());
-        threadState.start();
-        logger.info("执行 start()方法之后：{}", threadState.getState());
-
-//        Thread.sleep(2000);
-//        logger.info("执行 Thread.sleep()方法之后：{}", threadState.getState());
-
-//        TimeUnit.SECONDS.sleep(6);
-//        logger.info("执行 TimeUnit.sleep()方法之后：{}", threadState.getState());
-
-        threadState.interrupt();
-        logger.info("执行 interrupt()方法之后：{}", threadState.getState());
+    private static void testInterrupted() throws InterruptedException {
+        Thread currThread = Thread.currentThread(); // 当前主线程
+        System.out.println("当前主线程：" + currThread.getName());
+        System.out.println("测试的主线程中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        currThread.interrupt();
+//        Thread.sleep(2000); // 加上这段代码，让主线程睡眠2秒，也就是阻塞了，此时会报异常。
+        System.out.println("主线程 第一次中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("主线程 第二次中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("主线程 第三次中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
     }
 
     /**
-     * 使用一个实现了Runnable接口的类创建一个任务，再通过new Thread(runnable)创建一个线程。该任务中的run()方法中使用Thread.sleep()睡眠5秒。
-     * <pre>
-     * 在线程执行过程中时：<br/>
-     *   1.当直接使用interrupt()中断线程时，线程状态还是处于：RUNNABLE。同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   2.当使用Thread.sleep(2000)或者TimeUnit.SECONDS.sleep(2)时，
-     *          此时线程还未执行完成，线程状态是：TIMED_WAITING，在使用 interrupt() 中断线程睡眠时，线程状态还是：TIMED_WAITING。
-     *          同时会报异常：java.lang.InterruptedException: sleep interrupted。<br/>
-     *   3.当使用Thread.sleep(6000)或者TimeUnit.SECONDS.sleep(6)时，
-     *          此时线程已经执行完成，线程状态是：TERMINATED，在使用 interrupt() 中断线程睡眠时，线程状态还是：TERMINATED。
-     *          因为线程已经执行完了，所以不会有影响。
-     * </pre>
-     *
-     * @throws InterruptedException 打断睡眠的线程时 异常。
+     * 测试 中断sleep()方法
+     * 当线程中使用sleep阻塞线程时，调用 interrupt()后，首先会使线程的中断状态设为true，随后会立马改为false。
+     * 然后抛出异常。抛出异常之后线程的中断状态为false，抛出异常之前可能会存在true和false的情况。
      */
-    private static void testTheRunnableHasSleepMethod() throws InterruptedException {
-        logger.info("执行方法：testTheRunnableHasSleepMethod()");
-
-        SleepRunnable runnable = new SleepRunnable();
-        Thread thread = new Thread(runnable);
-        logger.info("刚创建时线程状态：{}", thread.getState());
-        thread.start();
-        logger.info("执行 start()方法之后：{}", thread.getState());
-
-//        Thread.sleep(2000);
-//        Thread.sleep(6000);
-//        logger.info("执行 Thread.sleep()方法之后：{}", thread.getState());
-
-//        TimeUnit.SECONDS.sleep(2);
-//        TimeUnit.SECONDS.sleep(6);
-//        logger.info("执行 TimeUnit.sleep()方法之后：{}", thread.getState());
-
-        thread.interrupt();
-        logger.info("执行 interrupt()方法之后：{}", thread.getState());
+    private static void testIsInterruptedWithSleep() {
+        // 线程中使用sleep()方法
+        Thread aa = new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                System.out.println("aa 线程处于阻塞状态，中断时异常:" + e);
+            }
+        });
+        aa.start();
+        System.out.println("aa 调用interrupt()之前，中断状态：" + aa.isInterrupted() + "，存活：" + aa.isAlive() + "，线程状态：" + aa.getState());
+        aa.interrupt();
+        System.out.println("aa 第一次中断状态：" + aa.isInterrupted() + "，存活：" + aa.isAlive() + "，线程状态：" + aa.getState());
+        System.out.println("aa 第二次中断状态：" + aa.isInterrupted() + "，存活：" + aa.isAlive() + "，线程状态：" + aa.getState());
+        System.out.println("aa 第三次中断状态：" + aa.isInterrupted() + "，存活：" + aa.isAlive() + "，线程状态：" + aa.getState());
     }
-
-    /**
-     * 使用一个实现了Runnable接口的类创建一个任务，再通过new Thread(runnable)创建一个线程。该任务中的run()方法中使用while(){}循环5秒。
-     * <pre>
-     * 在线程执行过程中时：<br/>
-     *   1.当使用Thread.sleep(2000)或者TimeUnit.SECONDS.sleep(2)时，
-     *          此时线程还未执行完成，线程状态是：RUNNABLE，在使用 interrupt() 中断线程睡眠时，线程状态还是：RUNNABLE。
-     *          不会报异常。<br/>
-     *   2.当使用Thread.sleep(6000)或者TimeUnit.SECONDS.sleep(6)时，
-     *          此时线程已经执行完成，线程状态是：TERMINATED，在使用 interrupt() 中断线程睡眠时，线程状态还是：TERMINATED。
-     *          因为线程已经执行完了，所以不会有影响。
-     * </pre>
-     *
-     * @throws InterruptedException 打断睡眠的线程时 异常。
-     */
-    private static void testTheRunnableWithoutSleepMethod() throws InterruptedException {
-        logger.info("执行方法：testTheRunnableWithoutSleepMethod()");
-
-        ComplexRunnable runnable = new ComplexRunnable();
-        Thread thread = new Thread(runnable);
-        logger.info("刚创建时线程状态：{}", thread.getState());
-        thread.start();
-        logger.info("执行 start()方法之后：{}", thread.getState());
-
-//        Thread.sleep(2000);
-//        Thread.sleep(6000);
-//        logger.info("执行 Thread.sleep()方法之后：{}", thread.getState());
-
-//        TimeUnit.SECONDS.sleep(2);
-        TimeUnit.SECONDS.sleep(6);
-        logger.info("执行 TimeUnit.sleep()方法之后：{}", thread.getState());
-
-        thread.interrupt();
-        logger.info("执行 interrupt()方法之后：{}", thread.getState());
-    }
-
 }
