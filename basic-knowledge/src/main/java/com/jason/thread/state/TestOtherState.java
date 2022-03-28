@@ -163,11 +163,11 @@ public class TestOtherState {
 
 //        Thread.sleep(2000);
 //        Thread.sleep(6000);
-//        logger.info("执行 Thread.sleep()方法之后：{}", thread.getState());
+//        logger.info("执行 Thread.sleep()方法之后：{}", com.jason.thread.getState());
 
 //        TimeUnit.SECONDS.sleep(2);
 //        TimeUnit.SECONDS.sleep(6);
-//        logger.info("执行 TimeUnit.sleep()方法之后：{}", thread.getState());
+//        logger.info("执行 TimeUnit.sleep()方法之后：{}", com.jason.thread.getState());
 
         thread.interrupt();
         logger.info("执行 interrupt()方法之后：{}", thread.getState());
@@ -198,7 +198,7 @@ public class TestOtherState {
 
 //        Thread.sleep(2000);
 //        Thread.sleep(6000);
-//        logger.info("执行 Thread.sleep()方法之后：{}", thread.getState());
+//        logger.info("执行 Thread.sleep()方法之后：{}", com.jason.thread.getState());
 
 //        TimeUnit.SECONDS.sleep(2);
         TimeUnit.SECONDS.sleep(6);
