@@ -20,9 +20,9 @@ public class MyThreadPool {
     private List<Runnable> runnables = Collections.synchronizedList(new LinkedList<>());
 
     private int currentThreadNum; // 当前线程数量
-    private int corePoolSize; // 核心线程数量
-    private int maxThreadSize; // 最大线程数量
-    private int threadQueueSize; // 线程队列容量
+    private final int corePoolSize; // 核心线程数量
+    private final int maxThreadSize; // 最大线程数量
+    private final int threadQueueSize; // 线程队列容量
 
     public MyThreadPool(int corePoolSize, int maxThreadSize, int threadQueueSize) {
         this.corePoolSize = corePoolSize;
