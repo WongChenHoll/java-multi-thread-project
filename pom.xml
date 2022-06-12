@@ -18,6 +18,7 @@
     <modules>
         <module>basic-knowledge</module>
         <module>thread-basic-use</module>
+        <module>java-concurrency-in-practice</module>
     </modules>
 
     <properties>

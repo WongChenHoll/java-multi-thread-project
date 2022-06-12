@@ -9,5 +9,6 @@
 主要包括一下几个项目：
 
 ## 1.basic-knowledge:基本概念的介绍。
-## 2.thread-basic-use：基本的简单应用。
-## 3.complicated-use：复杂使用。
+## 2.java-concurrency-in-practice：《Java并发编程实战》-机械工业出版社
+## 3.thread-basic-use：基本的简单应用。
+## 4.complicated-use：复杂使用。
