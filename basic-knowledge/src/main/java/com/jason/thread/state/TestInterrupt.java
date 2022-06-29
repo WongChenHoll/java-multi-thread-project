@@ -6,7 +6,7 @@ package com.jason.thread.state;
  *     1.interrupt().Thread类中的成员方法，public void interrupt()；给线程打上中断标识。
  *          a.如果线程进入阻塞状态（例如sleep,wait,join等），则会抛出异常：java.lang.InterruptedException: sleep interrupted。
  *          b.如果线程处于正常活动状态，那么该线程的中断标识为true，不会影响线程的正常运行。
- *     2.interrupted().Thread类中的静态方法，public static boolean interrupted()；判断当前线程的中断状态。
+ *     2.interrupted().Thread类中的静态方法，public static boolean interrupted()；1清除当前线程的中断状态，并返回它之前的值。
  *          注意的是第二次调用此方法时会清除中断状态。当调用interrupt()方法后，也就是第一次调用interrupted()会返回true，第二次调用就会返回false。
  *     3.isInterrupted().Thread类中的成员方法，public boolean isInterrupted() ；判断当前线程的中断状态。不会清除中断状态。
  *     4.isInterrupted(boolean ClearInterrupted).
@@ -84,11 +84,16 @@ public class TestInterrupt {
         Thread currThread = Thread.currentThread(); // 当前主线程
         System.out.println("当前主线程：" + currThread.getName());
         System.out.println("测试的主线程中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("测试的主线程中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("测试的主线程中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        // 给线程打上中断标志
         currThread.interrupt();
 //        Thread.sleep(2000); // 加上这段代码，让主线程睡眠2秒，也就是阻塞了，此时会报异常。
-        System.out.println("主线程 第一次中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
-        System.out.println("主线程 第二次中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
-        System.out.println("主线程 第三次中断状态：" + Thread.interrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("线程的中断标志：" + currThread.isInterrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("线程的中断标志：" + currThread.isInterrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("线程的中断标志：" + currThread.isInterrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("第一次清除线程的中断状态：" + Thread.interrupted() + "，线程的中断标志：" + currThread.isInterrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
+        System.out.println("第二次清除线程的中断状态：" + Thread.interrupted() + "，线程的中断标志：" + currThread.isInterrupted() + "，存活：" + currThread.isAlive() + "，线程状态：" + currThread.getState());
     }
 
     /**

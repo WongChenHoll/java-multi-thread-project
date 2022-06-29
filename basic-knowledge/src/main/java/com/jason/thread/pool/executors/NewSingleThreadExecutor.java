@@ -15,8 +15,8 @@ import java.util.concurrent.ThreadFactory;
  **/
 public class NewSingleThreadExecutor {
     public static void main(String[] args) {
-        test1();
-        test2();
+//        test1();
+//        test2();
         test3();
 
     }
@@ -47,19 +47,24 @@ public class NewSingleThreadExecutor {
      * 只有一个线程，所以要一个一个任务去执行。并且使用的是自定义的线程
      */
     private static void test3() {
-        ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-            // 使用自定义的线程
-            private int taskNum; // 任务编号
-
-            @Override
-            public Thread newThread(Runnable r) {
-                String name = "自定义线程名-" + taskNum++;
-                return new Thread(r, name);
-            }
-        });
+        ExecutorService executor = Executors.newSingleThreadExecutor(new MyThreadFactory("牛逼线程池"));
         for (int i = 0; i < 5; i++) {
             executor.submit(new SimpleRunnable(i));
         }
         executor.shutdown();
+    }
+
+    static class MyThreadFactory implements ThreadFactory {
+        private final String poolName;
+
+        public MyThreadFactory(String poolName) {
+            this.poolName = poolName;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            String name = "我的线程";
+            return new Thread(r, poolName + "之☞-" + name);
+        }
     }
 }
