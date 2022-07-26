@@ -51,6 +51,7 @@
             <version>1.2.3</version>
         </dependency>
 
+        <!--  net.jcip start  -->
         <!-- Java并发编程中，用到了一些专门为并发编程准备的注解 -->
         <dependency>
             <groupId>net.jcip</groupId>
@@ -58,11 +59,13 @@
             <version>1.0</version>
         </dependency>
         <!-- 或者下面的依赖： -->
-<!--        <dependency>-->
-<!--            <groupId>com.github.stephenc.jcip</groupId>-->
-<!--            <artifactId>jcip-annotations</artifactId>-->
-<!--            <version>1.0-1</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>com.github.stephenc.jcip</groupId>-->
+        <!--            <artifactId>jcip-annotations</artifactId>-->
+        <!--            <version>1.0-1</version>-->
+        <!--        </dependency>-->
+
+        <!-- net.jcip end  -->
 
     </dependencies>
 
